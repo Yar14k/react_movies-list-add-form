@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 export const App = () => {
   const [movies, setMovies] = useState(moviesFromServer);
+  const [formKey, setFormKey] = useState(0);
 
   return (
     <div className="page">
@@ -13,7 +14,10 @@ export const App = () => {
         <MoviesList movies={movies} />
       </div>
       <div className="sidebar">
-        <NewMovie onAdd={movie => setMovies([...movies, movie])} />
+        <NewMovie key={formKey} onAdd={movie => {
+          setMovies([...movies, movie]);
+          setFormKey(prevKey => prevKey + 1);
+        }} />
       </div>
     </div>
   );
