@@ -1,22 +1,58 @@
 import { useState } from 'react';
 import { TextField } from '../TextField';
+import { Movie } from '../../types/Movie';
 
-export const NewMovie = () => {
+type Props = {
+  onAdd: (movie: Movie) => void;
+};
+
+// eslint-disable-next-line max-len
+const pattern = /^((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w-_]*)?\??(?:[-+=&;%@,.\w_]*)#?(?:[,.!/\\\w]*))?)$/;
+
+const validateUrl = (value: string) => pattern.test(value.trim());
+
+export const NewMovie = ({ onAdd }: Props) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [imgUrl, setImgUrl] = useState('');
   const [imdbUrl, setImdbUrl] = useState('');
   const [imdbId, setImdbId] = useState('');
 
+  const isFormValid =
+    title.trim() !== '' &&
+    validateUrl(imgUrl) &&
+    validateUrl(imdbUrl) &&
+    imdbId.trim() !== '';
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (isFormValid) {
+      onAdd({
+        title,
+        description,
+        imgUrl,
+        imdbUrl,
+        imdbId,
+      } as Movie);
+
+      setTitle('');
+      setDescription('');
+      setImgUrl('');
+      setImdbUrl('');
+      setImdbId('');
+    }
+  };
+
   return (
-    <form className="NewMovie" key={count}>
+    <form className="NewMovie" onSubmit={handleSubmit}>
       <h2 className="title">Add a movie</h2>
 
       <TextField
         name="title"
         label="Title"
         value={title}
-        onChange={e => setTitle(e.target.value)}
+        onChange={newValue => setTitle(newValue)}
         required
       />
 
@@ -24,28 +60,33 @@ export const NewMovie = () => {
         name="description"
         label="Description"
         value={description}
-        onChange={e => setDescription(e.target.value)}
+        onChange={newValue => setDescription(newValue)}
       />
 
       <TextField
         name="imgUrl"
         label="Image URL"
         value={imgUrl}
-        onChange={e => setImgUrl(e.target.value)}
+        onChange={newValue => setImgUrl(newValue)}
+        required
+        validate={validateUrl}
       />
 
       <TextField
         name="imdbUrl"
         label="Imdb URL"
         value={imdbUrl}
-        onChange={e => setImdbUrl(e.target.value)}
+        onChange={newValue => setImdbUrl(newValue)}
+        required
+        validate={validateUrl}
       />
 
       <TextField
         name="imdbId"
         label="Imdb ID"
         value={imdbId}
-        onChange={e => setImdbId(e.target.value)}
+        onChange={newValue => setImdbId(newValue)}
+        required
       />
 
       <div className="field is-grouped">
@@ -54,6 +95,7 @@ export const NewMovie = () => {
             type="submit"
             data-cy="submit-button"
             className="button is-link"
+            disabled={!isFormValid}
           >
             Add
           </button>
